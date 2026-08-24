@@ -25,7 +25,7 @@ After installation, your admin dashboard is accessible securely via HTTPS:
 Run this command on your server (Ubuntu / Debian / CentOS / AlmaLinux / Arch):
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/stx-install.sh) -subdomain vpn.shanutechx.com
+bash <(curl -Ls https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-install.sh) -subdomain vpn.shanutechx.com
 ```
 
 ### What Happens Automatically:

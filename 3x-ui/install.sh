@@ -1437,8 +1437,8 @@ install_x-ui() {
         fi
         echo -e "Got x-ui version: ${tag_version}, beginning the installation..."
         curl -fLR --retry 5 --retry-delay 3 --connect-timeout 15 --speed-limit 1 --speed-time 300 -o ${xui_folder}-linux-$(arch).tar.gz https://github.com/ShanudhaTirosh/STX-VPN/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz || true
-        if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz && -f "$(pwd)/stx-release/3x-ui/x-ui-linux-$(arch).tar.gz" ]]; then
-            cp "$(pwd)/stx-release/3x-ui/x-ui-linux-$(arch).tar.gz" ${xui_folder}-linux-$(arch).tar.gz
+        if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz && -f "$(pwd)/3x-ui/x-ui-linux-$(arch).tar.gz" ]]; then
+            cp "$(pwd)/3x-ui/x-ui-linux-$(arch).tar.gz" ${xui_folder}-linux-$(arch).tar.gz
         fi
     else
         tag_version=$1
@@ -1448,7 +1448,7 @@ install_x-ui() {
     fi
     local xui_script_temp="/usr/bin/x-ui-temp.$$"
     rm -f "${xui_script_temp}"
-    curl -fLRo "${xui_script_temp}" https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.sh || {
+    curl -fLRo "${xui_script_temp}" https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/3x-ui/x-ui.sh || {
         if [[ -f "$(pwd)/x-ui.sh" ]]; then cp "$(pwd)/x-ui.sh" "${xui_script_temp}"; fi
     }
     if [[ $? -ne 0 ]]; then
@@ -1666,13 +1666,13 @@ install_x-ui() {
             echo -e "${yellow}Service files not found in tar.gz, downloading from GitHub...${plain}"
             case "${release}" in
                 ubuntu | debian | armbian)
-                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.service.debian"
+                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/3x-ui/x-ui.service.debian"
                     ;;
                 arch | manjaro | parch)
-                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.service.arch"
+                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/3x-ui/x-ui.service.arch"
                     ;;
                 *)
-                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.service.rhel"
+                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/3x-ui/x-ui.service.rhel"
                     ;;
             esac
 

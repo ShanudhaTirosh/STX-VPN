@@ -20,7 +20,7 @@
 To run the unified installation script on your server:
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/stx-install.sh) -subdomain vpn.shanutechx.com
+bash <(curl -Ls https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-install.sh) -subdomain vpn.shanutechx.com
 ```
 
 ---

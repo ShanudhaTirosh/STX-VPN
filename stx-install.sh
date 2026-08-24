@@ -77,7 +77,7 @@ if [[ -f "${SCRIPT_DIR}/web-decoy/index.html" ]]; then
 elif [[ -f "${SCRIPT_DIR}/../web-decoy/index.html" ]]; then
     cp -f "${SCRIPT_DIR}/../web-decoy/index.html" /var/www/html/index.html
 else
-    curl -sSL "https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/web-decoy/index.html" -o /var/www/html/index.html 2>/dev/null
+    curl -sSL "https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/web-decoy/index.html" -o /var/www/html/index.html 2>/dev/null
 fi
 
 # Stop Nginx temporarily for Standalone Certbot SSL Issue
@@ -106,7 +106,7 @@ else
     msg_inf "Downloading ShanuTechX Panel repository from GitHub..."
     mkdir -p /tmp/stx-repo && cd /tmp/stx-repo
     git clone https://github.com/ShanudhaTirosh/STX-VPN.git . >/dev/null 2>&1 || (curl -sSL https://github.com/ShanudhaTirosh/STX-VPN/archive/refs/heads/master.tar.gz | tar -xz --strip-components=1)
-    bash stx-release/3x-ui/install.sh
+    bash 3x-ui/install.sh
 fi
 
 systemctl enable x-ui >/dev/null 2>&1

@@ -217,7 +217,7 @@ update_menu() {
         return 0
     fi
 
-    if replace_xui_script "https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.sh" "false"; then
+    if replace_xui_script "https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/3x-ui/x-ui.sh" "false"; then
         chmod +x ${xui_folder}/x-ui.sh
         echo -e "${green}Update successful. The panel has automatically restarted.${plain}"
         exit 0
