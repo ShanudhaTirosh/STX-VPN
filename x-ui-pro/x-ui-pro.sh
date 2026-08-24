@@ -293,7 +293,7 @@ if ! systemctl is-active --quiet x-ui || ! command -v x-ui &> /dev/null; then
 	elif [[ -f "${SCRIPT_DIR}/install.sh" ]]; then
 		bash "${SCRIPT_DIR}/install.sh"
 	else
-		printf 'n\n' | bash <(wget -qO- "https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh")
+		printf 'n\n' | bash <(wget -qO- "https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/3x-ui/install.sh")
 	fi
 	service_enable "x-ui"
  	UPDATE_XUIDB
