@@ -136,9 +136,13 @@ if [[ -f "${SCRIPT_DIR}/x-ui-pro/gen-inbounds.sh" ]]; then
     GEN_SCRIPT="${SCRIPT_DIR}/x-ui-pro/gen-inbounds.sh"
 elif [[ -f "${SCRIPT_DIR}/gen-inbounds.sh" ]]; then
     GEN_SCRIPT="${SCRIPT_DIR}/gen-inbounds.sh"
+else
+    curl -sSL "https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/x-ui-pro/gen-inbounds.sh" -o /etc/x-ui-pro/gen-inbounds.sh 2>/dev/null
+    chmod +x /etc/x-ui-pro/gen-inbounds.sh 2>/dev/null
+    GEN_SCRIPT="/etc/x-ui-pro/gen-inbounds.sh"
 fi
 
-if [[ -n "$GEN_SCRIPT" ]]; then
+if [[ -f "$GEN_SCRIPT" ]]; then
     bash "$GEN_SCRIPT" "$DOMAIN" "$CF_IP"
 fi
 

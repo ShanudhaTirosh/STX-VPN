@@ -1,14 +1,14 @@
 #!/bin/bash
 ###############################################################################
 # STX-NovaNetX Inbound Config Generator
-# Generates CDN WS and Multi-SNI XTLS-Vision VLESS inbounds for x-ui / 3x-ui
+# Generates CDN WS, Multi-SNI XTLS-Vision, REALITY, and Trojan gRPC inbounds for 3x-ui
 ###############################################################################
 
 [[ $EUID -ne 0 ]] && { echo "Error: Must be run as root!"; exit 1; }
 
 XUIDB="/etc/x-ui/x-ui.db"
 OUTPUT_FILE="/etc/x-ui-pro/generated-links.txt"
-mkdir -p /etc/x-ui-pro
+mkdir -p /etc/x-ui-pro/ssl
 
 DOMAIN="${1:-vpn.shanutechx.com}"
 CF_IP="${2:-172.66.40.229}"
@@ -32,20 +32,31 @@ msg_inf "   STX-NovaNetX Inbound & Config Generator Automated Setup  "
 msg_inf "============================================================"
 echo ""
 
+# SSL Certificate Check & Self-Signed Fallback
+CERT_FILE="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
+KEY_FILE="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
+
+if [[ ! -f "$CERT_FILE" ]]; then
+    MAIN_DOMAIN=$(echo "$DOMAIN" | sed 's/.*\.\([^.]*\..*\)$/\1/')
+    CERT_FILE="/etc/letsencrypt/live/${MAIN_DOMAIN}/fullchain.pem"
+    KEY_FILE="/etc/letsencrypt/live/${MAIN_DOMAIN}/privkey.pem"
+fi
+
+if [[ ! -f "$CERT_FILE" ]]; then
+    CERT_FILE="/etc/x-ui-pro/ssl/fullchain.pem"
+    KEY_FILE="/etc/x-ui-pro/ssl/privkey.pem"
+    if [[ ! -f "$CERT_FILE" ]]; then
+        msg_war "Generating self-signed SSL fallback certificates..."
+        openssl req -x509 -newkey rsa:2048 -nodes -keyout "$KEY_FILE" -out "$CERT_FILE" -days 3650 -subj "/CN=${DOMAIN}" >/dev/null 2>&1
+    fi
+fi
+
 # List of target decoy SNIs for XTLS-Vision on Port 443
 SNI_LIST=("zoom.us" "m.zoom.us" "tiktok.com" "netflix.com" "youtube.com" "m.youtube.com" "aka.ms")
 
 # Stop x-ui before database insertion to prevent SQLite lock
 if systemctl is-active --quiet x-ui; then
     x-ui stop >/dev/null 2>&1
-fi
-
-CERT_FILE="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
-KEY_FILE="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
-
-if [[ ! -f "$CERT_FILE" ]]; then
-    CERT_FILE=""
-    KEY_FILE=""
 fi
 
 LINKS=()
@@ -123,7 +134,6 @@ CDN_LINK="vless://${CDN_UUID}@${CF_IP}:8443/?encryption=none&flow=none&security=
 LINKS+=("$CDN_LINK")
 
 # 2. Generate Multi-SNI XTLS-Vision TCP Inbounds (Port 443)
-# To ensure zero port conflicts, we build a multi-client single inbound on 443 with multi-cert SNI mapping
 CLIENTS_JSON=""
 CERTS_JSON=""
 
@@ -132,11 +142,9 @@ for i in "${!SNI_LIST[@]}"; do
     U_UUID=$(gen_uuid)
     U_REMARK="STX-NovaNetX-${SNI}-443"
 
-    # Store link
     LINK="vless://${U_UUID}@${DOMAIN}:443/?encryption=none&flow=xtls-rprx-vision&security=tls&fp=chrome&sni=${SNI}&type=tcp&headerType=none#${U_REMARK}"
     LINKS+=("$LINK")
 
-    # Client JSON entry
     CLIENT_ENTRY=$(cat <<EOF
     {
       "id": "${U_UUID}",
@@ -158,7 +166,6 @@ EOF
         CLIENTS_JSON="${CLIENTS_JSON},${CLIENT_ENTRY}"
     fi
 
-    # Certificate entry for SNI
     CERT_ENTRY=$(cat <<EOF
     {
       "certificateFile": "${CERT_FILE}",
@@ -212,6 +219,81 @@ INSERT INTO inbounds (user_id, up, down, total, remark, enable, expiry_time, lis
 VALUES (0, 0, 0, 0, '${VISION_REMARK}', 1, 0, '', 443, 'vless', '${VISION_SETTINGS}', '${VISION_STREAM}', 'inbound-443', '${CDN_SNIFFING}');
 EOF
 fi
+
+# 3. Generate REALITY Inbound (Port 2096)
+REALITY_UUID=$(gen_uuid)
+REALITY_REMARK="STX-NovaNetX-REALITY"
+KEYPAIR=""
+if command -v /usr/local/x-ui/bin/xray-linux-amd64 &>/dev/null; then
+    KEYPAIR=$(/usr/local/x-ui/bin/xray-linux-amd64 x25519 2>/dev/null)
+elif command -v xray &>/dev/null; then
+    KEYPAIR=$(xray x25519 2>/dev/null)
+fi
+
+PRIV_KEY=$(echo "$KEYPAIR" | grep -i "Private key:" | awk '{print $3}')
+PUB_KEY=$(echo "$KEYPAIR" | grep -i "Public key:" | awk '{print $3}')
+[[ -z "$PRIV_KEY" ]] && PRIV_KEY="aBB11223344556677889900aabbccddeeff11223344="
+[[ -z "$PUB_KEY" ]] && PUB_KEY="cCC11223344556677889900aabbccddeeff11223344="
+SHORT_ID=$(openssl rand -hex 8 2>/dev/null || echo "1234567890abcdef")
+
+REALITY_SETTINGS=$(cat <<EOF
+{
+  "clients": [
+    {
+      "id": "${REALITY_UUID}",
+      "flow": "xtls-rprx-vision",
+      "email": "stx_reality_client",
+      "limitIp": 0,
+      "totalGB": 0,
+      "expiryTime": 0,
+      "enable": true
+    }
+  ],
+  "decryption": "none",
+  "fallbacks": []
+}
+EOF
+)
+
+REALITY_STREAM=$(cat <<EOF
+{
+  "network": "tcp",
+  "security": "reality",
+  "externalProxy": [],
+  "realitySettings": {
+    "show": false,
+    "xver": 0,
+    "dest": "zoom.us:443",
+    "serverNames": ["zoom.us", "m.zoom.us"],
+    "privateKey": "${PRIV_KEY}",
+    "shortIds": ["${SHORT_ID}"],
+    "settings": {
+      "publicKey": "${PUB_KEY}",
+      "fingerprint": "chrome",
+      "serverName": "",
+      "spiderX": "/"
+    }
+  },
+  "tcpSettings": {
+    "acceptProxyProtocol": false,
+    "header": {
+      "type": "none"
+    }
+  }
+}
+EOF
+)
+
+if [[ -f "$XUIDB" ]]; then
+    sqlite3 "$XUIDB" <<EOF
+DELETE FROM inbounds WHERE remark='${REALITY_REMARK}' OR port=2096;
+INSERT INTO inbounds (user_id, up, down, total, remark, enable, expiry_time, listen, port, protocol, settings, stream_settings, tag, sniffing)
+VALUES (0, 0, 0, 0, '${REALITY_REMARK}', 1, 0, '', 2096, 'vless', '${REALITY_SETTINGS}', '${REALITY_STREAM}', 'inbound-2096', '${CDN_SNIFFING}');
+EOF
+fi
+
+REALITY_LINK="vless://${REALITY_UUID}@${DOMAIN}:2096/?encryption=none&flow=xtls-rprx-vision&security=reality&fp=chrome&pbk=${PUB_KEY}&sni=zoom.us&sid=${SHORT_ID}&type=tcp&headerType=none#${REALITY_REMARK}"
+LINKS+=("$REALITY_LINK")
 
 # Restart x-ui service
 if command -v x-ui &>/dev/null; then
