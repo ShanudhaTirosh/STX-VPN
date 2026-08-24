@@ -18,7 +18,7 @@ hrline
 mkdir -p ${HOME}/.cache
 Pak=$(command -v apt || command -v dnf || command -v yum) && Pak=$(basename "$Pak") || { msg_err "No package manager!"; exit 1; }
 gen_str() { local l=$((RANDOM%7+6)); LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom 2>/dev/null | head -c "$l" || tr -dc 'A-Za-z0-9' </proc/sys/kernel/random/uuid 2>/dev/null | head -c "$l"; }
-RNDSTR="shanutechx"
+RNDSTR="/shanutechx/"
 RNDSTR2=$(gen_str)
 XUIUSER=$(gen_str)
 XUIPASS=$(gen_str)
@@ -502,17 +502,13 @@ if systemctl is-active --quiet x-ui || command -v x-ui &> /dev/null; then clear
  	printf "\033[1;37;40m CPU: %s/%s Core | RAM: %s | SSD: %s Gi\033[0m\n" \
 	"$(arch)" "$(nproc)" "$(free -h | awk '/^Mem:/{print $2}')" "$(df / | awk 'NR==2 {print $2 / 1024 / 1024}')"
 	hrline
-  	msg_err  "XrayUI Panel [IP:PORT/PATH]"
-	[[ -n "$IP4" && "$IP4" =~ $IP4_REGEX ]] && msg_inf "IPv4: http://$IP4:$PORT$RNDSTR"
-	[[ -n "$IP6" && "$IP6" =~ $IP6_REGEX ]] && msg_inf "IPv6: http://[$IP6]:$PORT$RNDSTR"
- 	msg_err "\n V2rayA Panel [IP:PORT]"
-  	[[ -n "$IP4" && "$IP4" =~ $IP4_REGEX ]] && msg_inf "IPv4: http://$IP4:2017/"
-	[[ -n "$IP6" && "$IP6" =~ $IP6_REGEX ]] && msg_inf "IPv6: http://[$IP6]:2017/"
+  	msg_err  "ShanuTechX Panel [IP:PORT/PATH]"
+	[[ -n "$IP4" && "$IP4" =~ $IP4_REGEX ]] && msg_inf "IPv4: http://$IP4:$PORT${RNDSTR}"
+	[[ -n "$IP6" && "$IP6" =~ $IP6_REGEX ]] && msg_inf "IPv6: http://[$IP6]:$PORT${RNDSTR}"
 	hrline
 	sudo sh -c "echo -n '${XUIUSER}:' >> /etc/nginx/.htpasswd && openssl passwd -apr1 '${XUIPASS}' >> /etc/nginx/.htpasswd"
  	msg_ok "Admin Panel [SSL]:\n"
-	msg_inf "XrayUI: https://${domain}${RNDSTR}"
-	msg_inf "V2rayA: https://${domain}/${RNDSTR2}/\n"
+	msg_inf "ShanuTechX Panel: https://${domain}${RNDSTR}"
 	msg "Username: $XUIUSER\n Password: $XUIPASS"
 	hrline
 	msg_ok "ArgoSBX(SingBox) Configs Subscription URL:\n"

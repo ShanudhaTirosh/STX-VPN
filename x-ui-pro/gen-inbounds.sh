@@ -241,5 +241,3 @@ done
 
 msg_ok "Links saved to: ${OUTPUT_FILE}"
 echo ""
-EOF
-chmod +x "c:\Users\tiros\OneDrive\Documents\coding\3xui v\stx-release\x-ui-pro\gen-inbounds.sh" 2>/dev/null || true
