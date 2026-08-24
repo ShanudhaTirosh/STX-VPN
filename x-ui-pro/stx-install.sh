@@ -97,6 +97,17 @@ fi
 systemctl enable x-ui >/dev/null 2>&1
 systemctl start x-ui >/dev/null 2>&1
 
+# Set Dashboard Path to /shanutechx/ and Random Port in x-ui.db
+XUIDB="/etc/x-ui/x-ui.db"
+if [[ -f "$XUIDB" ]]; then
+    x-ui stop >/dev/null 2>&1
+    RANDOM_PORT=$((RANDOM%30000+30000))
+    sqlite3 "$XUIDB" <<EOF
+    DELETE FROM settings WHERE key IN ('webPort', 'webCertFile', 'webKeyFile', 'webBasePath');
+    INSERT INTO settings (key, value) VALUES ('webPort', '${RANDOM_PORT}'), ('webCertFile', ''), ('webKeyFile', ''), ('webBasePath', '/shanutechx/');
+EOF
+fi
+
 # 4. Automatic Inbound & Config Provisioning
 msg_inf "Step 4: Provisioning STX-NovaNetX Inbounds & Certificates..."
 GEN_SCRIPT=""

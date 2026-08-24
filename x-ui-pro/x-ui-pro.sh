@@ -18,7 +18,7 @@ hrline
 mkdir -p ${HOME}/.cache
 Pak=$(command -v apt || command -v dnf || command -v yum) && Pak=$(basename "$Pak") || { msg_err "No package manager!"; exit 1; }
 gen_str() { local l=$((RANDOM%7+6)); LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom 2>/dev/null | head -c "$l" || tr -dc 'A-Za-z0-9' </proc/sys/kernel/random/uuid 2>/dev/null | head -c "$l"; }
-RNDSTR=$(gen_str)
+RNDSTR="shanutechx"
 RNDSTR2=$(gen_str)
 XUIUSER=$(gen_str)
 XUIPASS=$(gen_str)
