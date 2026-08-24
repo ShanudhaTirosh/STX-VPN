@@ -1417,13 +1417,13 @@ _install_xui_service_unit() {
 # fails with "Failed to fetch x-ui version"), and falls back to the API.
 resolve_latest_tag() {
     local url tag
-    url=$(curl -sSLI -o /dev/null -w '%{url_effective}' --retry 5 --retry-delay 3 --connect-timeout 15 --max-time 60 "https://github.com/MHSanaei/3x-ui/releases/latest" 2>/dev/null)
+    url=$(curl -sSLI -o /dev/null -w '%{url_effective}' --retry 5 --retry-delay 3 --connect-timeout 15 --max-time 60 "https://github.com/ShanudhaTirosh/STX-VPN/releases/latest" 2>/dev/null)
     tag=${url##*/tag/}
     if [[ "$tag" != "$url" && -n "$tag" && "$tag" != "latest" ]]; then
         echo "$tag"
         return 0
     fi
-    curl -Ls --retry 5 --retry-delay 3 --connect-timeout 15 --max-time 60 "https://api.github.com/repos/MHSanaei/3x-ui/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+    curl -Ls --retry 5 --retry-delay 3 --connect-timeout 15 --max-time 60 "https://api.github.com/repos/ShanudhaTirosh/STX-VPN/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' || echo "master"
 }
 
 install_x-ui() {
@@ -1433,54 +1433,24 @@ install_x-ui() {
     if [ $# == 0 ]; then
         tag_version=$(resolve_latest_tag)
         if [[ ! -n "$tag_version" ]]; then
-            echo -e "${red}Failed to fetch x-ui version, it may be due to GitHub API restrictions, please try it later${plain}"
-            exit 1
+            tag_version="master"
         fi
-        echo -e "Got x-ui latest version: ${tag_version}, beginning the installation..."
-        curl -fLR --retry 5 --retry-delay 3 --connect-timeout 15 --speed-limit 1 --speed-time 300 -o ${xui_folder}-linux-$(arch).tar.gz https://github.com/MHSanaei/3x-ui/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz
-        if [[ $? -ne 0 ]]; then
-            echo -e "${red}Downloading x-ui failed, please be sure that your server can access GitHub ${plain}"
-            exit 1
-        fi
-        if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz ]]; then
-            rm ${xui_folder}-linux-$(arch).tar.gz -f
-            echo -e "${red}Downloaded x-ui release archive is empty${plain}"
-            exit 1
+        echo -e "Got x-ui version: ${tag_version}, beginning the installation..."
+        curl -fLR --retry 5 --retry-delay 3 --connect-timeout 15 --speed-limit 1 --speed-time 300 -o ${xui_folder}-linux-$(arch).tar.gz https://github.com/ShanudhaTirosh/STX-VPN/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz || true
+        if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz && -f "$(pwd)/stx-release/3x-ui/x-ui-linux-$(arch).tar.gz" ]]; then
+            cp "$(pwd)/stx-release/3x-ui/x-ui-linux-$(arch).tar.gz" ${xui_folder}-linux-$(arch).tar.gz
         fi
     else
         tag_version=$1
-        # The rolling dev channel ships under a fixed, non-semver tag that is
-        # force-moved to the latest main commit on every push. Accept `dev` as a
-        # convenient alias and skip the numeric floor check for it.
-        if [[ "$tag_version" == "dev" || "$tag_version" == "dev-latest" ]]; then
-            tag_version="dev-latest"
-            echo -e "${yellow}Installing the rolling dev build (tag: dev-latest). This is a per-commit pre-release, not a stable version.${plain}"
-        else
-            tag_version_numeric=${tag_version#v}
-            min_version="2.3.5"
-
-            if [[ "$(printf '%s\n' "$min_version" "$tag_version_numeric" | sort -V | head -n1)" != "$min_version" ]]; then
-                echo -e "${red}Please use a newer version (at least v2.3.5). Exiting installation.${plain}"
-                exit 1
-            fi
-        fi
-
-        url="https://github.com/MHSanaei/3x-ui/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz"
+        url="https://github.com/ShanudhaTirosh/STX-VPN/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz"
         echo -e "Beginning to install x-ui ${tag_version}"
-        curl -fLR --retry 5 --retry-delay 3 --connect-timeout 15 --speed-limit 1 --speed-time 300 -o ${xui_folder}-linux-$(arch).tar.gz ${url}
-        if [[ $? -ne 0 ]]; then
-            echo -e "${red}Download x-ui ${tag_version} failed, please check if the version exists ${plain}"
-            exit 1
-        fi
-        if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz ]]; then
-            rm ${xui_folder}-linux-$(arch).tar.gz -f
-            echo -e "${red}Downloaded x-ui release archive is empty${plain}"
-            exit 1
-        fi
+        curl -fLR --retry 5 --retry-delay 3 --connect-timeout 15 --speed-limit 1 --speed-time 300 -o ${xui_folder}-linux-$(arch).tar.gz ${url} || true
     fi
     local xui_script_temp="/usr/bin/x-ui-temp.$$"
     rm -f "${xui_script_temp}"
-    curl -fLRo "${xui_script_temp}" https://raw.githubusercontent.com/MHSanaei/3x-ui/main/x-ui.sh
+    curl -fLRo "${xui_script_temp}" https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.sh || {
+        if [[ -f "$(pwd)/x-ui.sh" ]]; then cp "$(pwd)/x-ui.sh" "${xui_script_temp}"; fi
+    }
     if [[ $? -ne 0 ]]; then
         rm -f "${xui_script_temp}"
         echo -e "${red}Failed to download x-ui.sh${plain}"
@@ -1696,13 +1666,13 @@ install_x-ui() {
             echo -e "${yellow}Service files not found in tar.gz, downloading from GitHub...${plain}"
             case "${release}" in
                 ubuntu | debian | armbian)
-                    service_unit_url="https://raw.githubusercontent.com/MHSanaei/3x-ui/main/x-ui.service.debian"
+                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.service.debian"
                     ;;
                 arch | manjaro | parch)
-                    service_unit_url="https://raw.githubusercontent.com/MHSanaei/3x-ui/main/x-ui.service.arch"
+                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.service.arch"
                     ;;
                 *)
-                    service_unit_url="https://raw.githubusercontent.com/MHSanaei/3x-ui/main/x-ui.service.rhel"
+                    service_unit_url="https://raw.githubusercontent.com/ShanudhaTirosh/STX-VPN/master/stx-release/3x-ui/x-ui.service.rhel"
                     ;;
             esac
 

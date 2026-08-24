@@ -103,7 +103,10 @@ if [[ -f "${SCRIPT_DIR}/3x-ui/install.sh" ]]; then
 elif [[ -f "${SCRIPT_DIR}/install.sh" ]]; then
     bash "${SCRIPT_DIR}/install.sh"
 else
-    printf 'n\n' | bash <(wget -qO- "https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh")
+    msg_inf "Downloading ShanuTechX Panel repository from GitHub..."
+    mkdir -p /tmp/stx-repo && cd /tmp/stx-repo
+    git clone https://github.com/ShanudhaTirosh/STX-VPN.git . >/dev/null 2>&1 || (curl -sSL https://github.com/ShanudhaTirosh/STX-VPN/archive/refs/heads/master.tar.gz | tar -xz --strip-components=1)
+    bash stx-release/3x-ui/install.sh
 fi
 
 systemctl enable x-ui >/dev/null 2>&1
