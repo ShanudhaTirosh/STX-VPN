@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShanuTechX Cloud & Global CDN Infrastructure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-surface: #121824;
+      --bg-card: rgba(22, 30, 46, 0.7);
+      --accent: #00b4d8;
+      --accent-glow: rgba(0, 180, 216, 0.25);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    .grid-bg {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: -1;
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.5rem 5%;
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-weight: 700; font-size: 1.4rem; color: #fff;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-badge {
+      background: linear-gradient(135deg, #00b4d8, #7209b7);
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1rem; color: #fff;
+    }
+    nav a {
+      color: var(--text-muted); text-decoration: none; margin-left: 2rem;
+      font-size: 0.95rem; transition: color 0.3s;
+    }
+    nav a:hover { color: var(--accent); }
+    .hero {
+      padding: 6rem 5% 4rem; text-align: center; max-width: 900px; margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 3rem; font-weight: 800; line-height: 1.2; margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, #ffffff 40%, #00b4d8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2.5rem;
+    }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 16px; border-radius: 20px; color: var(--success);
+      font-size: 0.85rem; font-weight: 500; margin-bottom: 2rem;
+    }
+    .dot {
+      width: 8px; height: 8px; background: var(--success); border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    .features {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem; padding: 2rem 5% 6rem; max-width: 1200px; margin: 0 auto;
+    }
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 12px; padding: 2rem; backdrop-filter: blur(8px);
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .card:hover { transform: translateY(-5px); border-color: var(--accent); }
+    .card h3 { font-size: 1.3rem; margin-bottom: 0.8rem; color: #fff; }
+    .card p { color: var(--text-muted); font-size: 0.95rem; }
+    footer {
+      border-top: 1px solid var(--border-color); padding: 2rem 5%;
+      text-align: center; color: var(--text-muted); font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <header>
+    <div class="logo">
+      <div class="logo-badge">S</div>
+      <span>ShanuTechX Global</span>
+    </div>
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#network">Edge Network</a>
+      <a href="#status">Network Status</a>
+      <a href="#contact">Support</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="status-badge">
+      <span class="dot"></span> All Edge Nodes Operational (99.99% Uptime)
+    </div>
+    <h1>Global High-Speed Edge Infrastructure & Content Acceleration</h1>
+    <p>ShanuTechX provides enterprise-grade distributed network delivery, intelligent routing, and low-latency Cloudflare CDN edge solutions.</p>
+  </section>
+
+  <section class="features" id="services">
+    <div class="card">
+      <h3>🚀 Edge Anycast Routing</h3>
+      <p>Intelligent dynamic packet routing ensuring sub-10ms edge latency across global data centers.</p>
+    </div>
+    <div class="card">
+      <h3>🛡️ Zero-Trust Security</h3>
+      <p>Comprehensive TLS 1.3 encryption and automated DDoS mitigation for enterprise infrastructure.</p>
+    </div>
+    <div class="card">
+      <h3>⚡ WebSocket & gRPC Proxies</h3>
+      <p>High-throughput multiplexed communication channels optimized for continuous real-time data flow.</p>
+    </div>
+  </section>
+
+  <footer>
+    &copy; 2026 ShanuTechX Infrastructure Networks. All rights reserved. Powered by Cloudflare Edge Network.
+  </footer>
+</body>
+</html>
+EOF
