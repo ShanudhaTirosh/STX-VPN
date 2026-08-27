@@ -1440,6 +1440,12 @@ install_x-ui() {
         if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz && -f "$(pwd)/3x-ui/x-ui-linux-$(arch).tar.gz" ]]; then
             cp "$(pwd)/3x-ui/x-ui-linux-$(arch).tar.gz" ${xui_folder}-linux-$(arch).tar.gz
         fi
+        if [[ ! -s ${xui_folder}-linux-$(arch).tar.gz ]]; then
+            echo -e "Release asset not found on STX-VPN, falling back to MHSanaei/3x-ui release package..."
+            upstream_tag=$(curl -sSLI -o /dev/null -w '%{url_effective}' "https://github.com/MHSanaei/3x-ui/releases/latest" 2>/dev/null | awk -F'/tag/' '{print $2}' | tr -d '[:space:]')
+            : "${upstream_tag:=v2.6.2}"
+            curl -fLR --retry 3 -o ${xui_folder}-linux-$(arch).tar.gz "https://github.com/MHSanaei/3x-ui/releases/download/${upstream_tag}/x-ui-linux-$(arch).tar.gz" || true
+        fi
     else
         tag_version=$1
         url="https://github.com/ShanudhaTirosh/STX-VPN/releases/download/${tag_version}/x-ui-linux-$(arch).tar.gz"
