@@ -220,80 +220,12 @@ VALUES (0, 0, 0, 0, '${VISION_REMARK}', 1, 0, '', 443, 'vless', '${VISION_SETTIN
 EOF
 fi
 
-# 3. Generate REALITY Inbound (Port 2096)
-REALITY_UUID=$(gen_uuid)
-REALITY_REMARK="STX-NovaNetX-REALITY"
-KEYPAIR=""
-if command -v /usr/local/x-ui/bin/xray-linux-amd64 &>/dev/null; then
-    KEYPAIR=$(/usr/local/x-ui/bin/xray-linux-amd64 x25519 2>/dev/null)
-elif command -v xray &>/dev/null; then
-    KEYPAIR=$(xray x25519 2>/dev/null)
-fi
-
-PRIV_KEY=$(echo "$KEYPAIR" | grep -i "Private key:" | awk '{print $3}')
-PUB_KEY=$(echo "$KEYPAIR" | grep -i "Public key:" | awk '{print $3}')
-[[ -z "$PRIV_KEY" ]] && PRIV_KEY="aBB11223344556677889900aabbccddeeff11223344="
-[[ -z "$PUB_KEY" ]] && PUB_KEY="cCC11223344556677889900aabbccddeeff11223344="
-SHORT_ID=$(openssl rand -hex 8 2>/dev/null || echo "1234567890abcdef")
-
-REALITY_SETTINGS=$(cat <<EOF
-{
-  "clients": [
-    {
-      "id": "${REALITY_UUID}",
-      "flow": "xtls-rprx-vision",
-      "email": "stx_reality_client",
-      "limitIp": 0,
-      "totalGB": 0,
-      "expiryTime": 0,
-      "enable": true
-    }
-  ],
-  "decryption": "none",
-  "fallbacks": []
-}
-EOF
-)
-
-REALITY_STREAM=$(cat <<EOF
-{
-  "network": "tcp",
-  "security": "reality",
-  "externalProxy": [],
-  "realitySettings": {
-    "show": false,
-    "xver": 0,
-    "dest": "zoom.us:443",
-    "serverNames": ["zoom.us", "m.zoom.us"],
-    "privateKey": "${PRIV_KEY}",
-    "shortIds": ["${SHORT_ID}"],
-    "settings": {
-      "publicKey": "${PUB_KEY}",
-      "fingerprint": "chrome",
-      "serverName": "",
-      "spiderX": "/"
-    }
-  },
-  "tcpSettings": {
-    "acceptProxyProtocol": false,
-    "header": {
-      "type": "none"
-    }
-  }
-}
-EOF
-)
-
+# 3. Clean up any existing REALITY inbound (Port 2096) if present
 if [[ -f "$XUIDB" ]]; then
     sqlite3 "$XUIDB" <<EOF
-DELETE FROM inbounds WHERE remark='${REALITY_REMARK}' OR port=2096;
-INSERT INTO inbounds (user_id, up, down, total, remark, enable, expiry_time, listen, port, protocol, settings, stream_settings, tag, sniffing)
-VALUES (0, 0, 0, 0, '${REALITY_REMARK}', 1, 0, '', 2096, 'vless', '${REALITY_SETTINGS}', '${REALITY_STREAM}', 'inbound-2096', '${CDN_SNIFFING}');
+DELETE FROM inbounds WHERE remark='STX-NovaNetX-REALITY' OR port=2096;
 EOF
 fi
-
-REALITY_LINK="vless://${REALITY_UUID}@${DOMAIN}:2096/?encryption=none&flow=xtls-rprx-vision&security=reality&fp=chrome&pbk=${PUB_KEY}&sni=zoom.us&sid=${SHORT_ID}&type=tcp&headerType=none#${REALITY_REMARK}"
-LINKS+=("$REALITY_LINK")
 
 # Restart x-ui service
 if command -v x-ui &>/dev/null; then
